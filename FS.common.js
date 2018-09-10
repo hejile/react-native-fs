@@ -390,7 +390,7 @@ var RNFS = {
       throw new Error('Invalid encoding type "' + options.encoding + '"');
     }
 
-    return RNFSManager.writeFile(normalizeFilePath(filepath), b64, options).then(() => void 0);
+    return RNFSManager.writeFile(normalizeFilePath(filepath), b64).then(() => void 0);
   },
 
   appendFile(filepath: string, contents: string, encodingOrOptions?: any): Promise<void> {

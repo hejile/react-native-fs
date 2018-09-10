@@ -19,13 +19,13 @@ import android.os.AsyncTask;
 
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 
-public class Downloader extends AsyncTask<DownloadParams, int[], DownloadResult> {
+public class Downloader {
   private DownloadParams mParam;
   private AtomicBoolean mAbort = new AtomicBoolean(false);
   DownloadResult res;
 
-  protected DownloadResult doInBackground(DownloadParams... params) {
-    mParam = params[0];
+  public DownloadResult downloadInBackground(DownloadParams params) {
+    mParam = params;
     res = new DownloadResult();
 
     new Thread(new Runnable() {
@@ -116,14 +116,14 @@ public class Downloader extends AsyncTask<DownloadParams, int[], DownloadResult>
 
           total += count;
           if (param.progressDivider <= 0) {
-            publishProgress(new int[]{lengthOfFile, total});
+            publishProgress(lengthOfFile, total);
           } else {
             double progress = Math.round(((double) total * 100) / lengthOfFile);
             if (progress % param.progressDivider == 0) {
               if ((progress != lastProgressValue) || (total == lengthOfFile)) {
                 Log.d("Downloader", "EMIT: " + String.valueOf(progress) + ", TOTAL:" + String.valueOf(total));
                 lastProgressValue = progress;
-                publishProgress(new int[]{lengthOfFile, total});
+                publishProgress(lengthOfFile, total);
               }
             }
           }
@@ -141,17 +141,11 @@ public class Downloader extends AsyncTask<DownloadParams, int[], DownloadResult>
     }
   }
 
-  protected void stop() {
+  private void publishProgress(int lengthOfFile, int current) {
+    mParam.onDownloadProgress.onDownloadProgress(lengthOfFile, current);
+  }
+
+  public void stop() {
     mAbort.set(true);
-  }
-
-  @Override
-  protected void onProgressUpdate(int[]... values) {
-    super.onProgressUpdate(values);
-    mParam.onDownloadProgress.onDownloadProgress(values[0][0], values[0][1]);
-  }
-
-  protected void onPostExecute(Exception ex) {
-
   }
 }

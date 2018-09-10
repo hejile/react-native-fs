@@ -80,9 +80,9 @@ public class RNFSManager extends ReactContextBaseJavaModule {
   }
 
   private String getOriginalFilepath(String filepath) throws IORejectionException {
-    Uri uri = getFileUri(filepath);
+    Uri uri = Uri.parse(filepath);
     String originalFilepath = filepath;
-    if (uri.getScheme().equals("content")) {
+    if (uri.getScheme() != null && uri.getScheme().equals("content")) {
       try {
         Cursor cursor = reactContext.getContentResolver().query(uri, null, null, null, null);
         if (cursor.moveToFirst()) {
@@ -670,7 +670,7 @@ public class RNFSManager extends ReactContextBaseJavaModule {
 
       Downloader downloader = new Downloader();
 
-      downloader.execute(params);
+      downloader.downloadInBackground(params);
 
       this.downloaders.put(jobId, downloader);
     } catch (Exception ex) {
